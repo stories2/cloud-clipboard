@@ -146,8 +146,11 @@ const onSubmitClicked = async function () {
     </div>
   </form>
   <div class="row justify-content-md-center" style="margin-top: 20px">
-    <div class="col col-md-8 col-lg-5">
-      <RouterLink to="/code/undefined" class="nav-link">Go to receive page</RouterLink>
+    <div class="col col-md-8 col-lg-5" v-if="userUid != ''">
+      <RouterLink :to="'/code/' + userUid" class="nav-link">Go to receive page</RouterLink>
+    </div>
+    <div class="col col-md-8 col-lg-5" v-else>
+      <RouterLink :to="'/code/undefined'" class="nav-link">Go to receive page</RouterLink>
     </div>
   </div>
 </template>
