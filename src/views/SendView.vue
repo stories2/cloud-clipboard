@@ -6,6 +6,8 @@ import QRCode from 'qrcode'
 let userUid = ref('')
 let qrImgUrl = ref('')
 let qrError = ref('')
+let content = ref('')
+let password = ref('')
 
 onMounted(() => {
   onAuthStateChanged(getAuth(), (user) => {
@@ -24,6 +26,64 @@ onMounted(() => {
     }
   })
 })
+
+async function decryptMessage(key: string, ciphertext: ArrayBuffer) {
+  const keyEncoded = new TextEncoder().encode(key)
+  const iv = new Uint8Array(16)
+  console.log('iv c', iv)
+  iv.set(keyEncoded)
+  console.log('iv', iv, iv.length)
+  const key_encoded = await window.crypto.subtle.importKey('raw', iv.buffer, 'AES-CTR', false, [
+    'encrypt',
+    'decrypt'
+  ])
+  // The iv value is the same as that used for encryption
+  return window.crypto.subtle.decrypt(
+    { name: 'AES-CTR', counter: iv, length: 128 },
+    key_encoded,
+    ciphertext
+  )
+}
+
+async function encryptMessage(key: string, plainText: string) {
+  const keyEncoded = new TextEncoder().encode(key)
+  const iv = new Uint8Array(16)
+  console.log('iv c', iv)
+  iv.set(keyEncoded)
+  console.log('iv', iv, iv.length)
+  const key_encoded = await window.crypto.subtle.importKey('raw', iv.buffer, 'AES-CTR', false, [
+    'encrypt',
+    'decrypt'
+  ])
+  const enc = new TextEncoder()
+  return window.crypto.subtle.encrypt(
+    {
+      name: 'AES-CTR',
+      counter: iv,
+      length: 128
+    },
+    key_encoded,
+    enc.encode(plainText)
+  )
+}
+
+const onSubmitClicked = async function () {
+  console.log(content.value.toString(), password.value.toString())
+  if (password.value.length > 0) {
+    const encryptedBuffer = await encryptMessage(
+      password.value.toString(),
+      content.value.toString()
+    )
+    console.log('e', encryptedBuffer)
+
+    const decrypted = await decryptMessage(password.value.toString(), encryptedBuffer)
+    console.log('d', decrypted)
+    const enc = new TextDecoder('utf-8')
+    console.log('t', enc.decode(decrypted))
+  } else {
+    console.log('plain')
+  }
+}
 </script>
 
 <template>
@@ -40,7 +100,7 @@ onMounted(() => {
       <div id="uid" class="collapse" style="margin-top: 5px">{{ userUid }}</div>
     </div>
   </div>
-  <form>
+  <form @submit.prevent="onSubmitClicked">
     <div class="row justify-content-md-center" style="margin-top: 20px">
       <div class="col col-md-8 col-lg-5">
         <div class="form-floating">
@@ -52,6 +112,7 @@ onMounted(() => {
             style="height: 120px"
             maxlength="500"
             minlength="2"
+            v-model="content"
           ></textarea>
           <label for="content">Content</label>
         </div>
@@ -72,8 +133,9 @@ onMounted(() => {
           type="password"
           class="form-control collapse"
           id="inputPassword"
-          maxlength="15"
+          maxlength="16"
           minlength="4"
+          v-model="password"
         />
       </div>
     </div>
