@@ -79,7 +79,7 @@ const onSearchBtnClicked = function () {
           type="password"
           class="form-control"
           id="inputPassword"
-          maxlength="15"
+          maxlength="16"
           minlength="4"
         />
       </div>
