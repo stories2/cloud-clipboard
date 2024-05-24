@@ -23,7 +23,7 @@ onMounted(() => {
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">Temparary</a>
+      <span class="navbar-brand">Temparary</span>
       <button
         class="navbar-toggler"
         type="button"
@@ -46,7 +46,7 @@ onMounted(() => {
   </nav>
   <div class="container">
     <div v-if="userUid != ''">
-      {{ userUid }}
+      <!-- {{ userUid }} -->
       <RouterView />
     </div>
     <div v-else>
