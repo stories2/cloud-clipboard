@@ -4,7 +4,8 @@
     <div>
       Send content you want to paste to another device.<br />
       Read the QR code using the device you want to paste it.<br />
-      That's it!
+      That's it!<br /><br />
+      Additionally, if you set the password it's going to be End-to-End encryption.
     </div>
   </div>
 </template>
