@@ -27,8 +27,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="row" style="margin-top: 50px">
-    <div class="col text-center">
+  <div class="row justify-content-md-center" style="margin-top: 50px">
+    <div class="col col-md-8 col-lg-5 text-center">
       <img
         :src="qrImgUrl"
         alt="QR"
@@ -83,8 +83,8 @@ onMounted(() => {
       </div>
     </div>
   </form>
-  <div class="row" style="margin-top: 20px">
-    <div class="col">
+  <div class="row justify-content-md-center" style="margin-top: 20px">
+    <div class="col col-md-8 col-lg-5">
       <RouterLink to="/code/undefined" class="nav-link">Go to receive page</RouterLink>
     </div>
   </div>

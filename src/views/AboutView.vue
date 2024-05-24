@@ -1,15 +1,12 @@
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
+  <div class="about" style="margin-top: 20vh">
+    <h1>Copy and past your content freely</h1>
+    <pre>
+Send content you want to paste to another device.
+Read the QR code using the device you want to paste it.
+That's it!
+    </pre>
   </div>
 </template>
 
-<style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
-}
-</style>
+<style></style>
