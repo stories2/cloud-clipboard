@@ -130,7 +130,12 @@ const onQRCodeImageChanged = function (e: Event) {
   <form @submit.prevent="onSubmitClicked">
     <div class="row justify-content-md-center">
       <div class="col col-md-8 col-lg-5">
-        <button type="button" class="btn btn-outline-light" v-on:click="onCopyToClipboardClicked">
+        <button
+          type="button"
+          class="btn btn-outline-light"
+          v-on:click="onCopyToClipboardClicked"
+          :disabled="content.length <= 0"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
