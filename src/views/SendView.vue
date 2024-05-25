@@ -33,15 +33,15 @@ onMounted(() => {
 
 const onSubmitClicked = async function () {
   sendResult.value = 'Sending...'
-  let contentToSend: string
+  let contentToSend = []
   if (password.value.length > 0) {
     const encryptedBuffer = await encryptContent(
       password.value.toString(),
       content.value.toString()
     )
-    const decoder = new TextDecoder('utf8')
-    contentToSend = decoder.decode(encryptedBuffer)
-  } else contentToSend = content.value.toString()
+    contentToSend = [...new Uint8Array(encryptedBuffer)]
+    // console.log(encryptedBuffer)
+  } else contentToSend = [...new TextEncoder().encode(content.value.toString())]
 
   const firestoreDB = getFirestore(getApp())
   try {

@@ -2,23 +2,45 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import QrScanner from 'qr-scanner'
+import { getApp } from 'firebase/app'
+import { doc, getFirestore, getDoc } from 'firebase/firestore'
+import { decryptContent } from '../components/core/encryptAndDecrypt'
 
 let code = ref('')
+let content = ref('')
+let contentBuffer: Uint8Array
 let qrCodeReadResultMsg = ref('')
+let decryptKey = ref('')
 const route = useRoute()
 const router = useRouter()
 
 onMounted(() => {
   // console.log('r', route.params.code)
   code.value = route.params.code as string
+  loadDataFromFirestore(code.value)
 })
 watch(
   () => route.params.code,
   (newId, oldId) => {
     // react to route changes...
     code.value = newId as string
+    loadDataFromFirestore(code.value)
   }
 )
+
+const onSubmitClicked = async function () {
+  const decryptedContent = await decryptContent(decryptKey.value, new Uint8Array(contentBuffer))
+  content.value = decryptedContent
+}
+
+const loadDataFromFirestore = async function (code: string) {
+  const firestoreDB = getFirestore(getApp())
+  const data = await getDoc(doc(firestoreDB, 'user', code))
+  const { content: contentFromFirestoreDB = [] } = data.data() || {}
+  contentBuffer = contentFromFirestoreDB
+
+  content.value = new TextDecoder().decode(new Uint8Array(contentFromFirestoreDB))
+}
 
 const onSearchBtnClicked = function () {
   router.push(`/code/${code.value}`)
@@ -28,7 +50,6 @@ const onQRCodeImageChanged = function (e: Event) {
   const target = e.target as HTMLInputElement
   if (target && target.files) {
     qrCodeReadResultMsg.value = 'Scanning the image.'
-    console.log()
     QrScanner.scanImage(target.files[0])
       .then((result) => {
         try {
@@ -96,7 +117,7 @@ const onQRCodeImageChanged = function (e: Event) {
     </div>
   </div>
   <hr />
-  <form>
+  <form @submit.prevent="onSubmitClicked">
     <div class="row justify-content-md-center" style="margin-top: 40px">
       <div class="col col-md-8 col-lg-5">
         <div class="form-floating">
@@ -105,9 +126,12 @@ const onQRCodeImageChanged = function (e: Event) {
             placeholder="Content to send"
             id="content"
             rows="4"
-            style="height: 120px"
+            style="height: 230px"
             maxlength="500"
             minlength="2"
+            readonly
+            disabled
+            v-model="content"
           ></textarea>
           <label for="content">Content</label>
         </div>
@@ -119,23 +143,26 @@ const onQRCodeImageChanged = function (e: Event) {
           for="inputPassword"
           class="form-label"
           data-bs-toggle="collapse"
-          data-bs-target="#inputPassword"
+          data-bs-target="#passwordGroup"
           style="cursor: pointer"
         >
           ↓ Type password to decrypt (optional)</label
         >
-        <input
-          type="password"
-          class="form-control collapse"
-          id="inputPassword"
-          maxlength="16"
-          minlength="4"
-        />
-      </div>
-    </div>
-    <div class="row justify-content-md-center" style="margin-top: 20px">
-      <div class="col col-md-8 col-lg-5">
-        <button type="submit" class="btn btn-outline-light">Read</button>
+        <div id="passwordGroup" class="collapse">
+          <input
+            type="password"
+            class="form-control"
+            id="inputPassword"
+            maxlength="16"
+            minlength="4"
+            v-model="decryptKey"
+          />
+          <div class="row justify-content-md-center" style="margin-top: 20px">
+            <div class="col col-md-8 col-lg-5">
+              <button type="submit" class="btn btn-outline-light">Decrypt</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </form>

@@ -10,7 +10,7 @@ onMounted(() => {
   const auth = getAuth()
   signInAnonymously(auth)
     .then((user) => {
-      console.log('user', user.user.uid, getAdditionalUserInfo(user))
+      // console.log('user', user.user.uid, getAdditionalUserInfo(user))
       userUid.value = user.user.uid
     })
     .catch((error) => {
