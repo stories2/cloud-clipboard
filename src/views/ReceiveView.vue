@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import QrScanner from 'qr-scanner'
 
 let code = ref('')
+let qrCodeReadResultMsg = ref('')
 const route = useRoute()
 const router = useRouter()
 
@@ -14,7 +16,6 @@ watch(
   () => route.params.code,
   (newId, oldId) => {
     // react to route changes...
-    console.log('c', newId, oldId)
     code.value = newId as string
   }
 )
@@ -22,13 +23,46 @@ watch(
 const onSearchBtnClicked = function () {
   router.push(`/code/${code.value}`)
 }
+
+const onQRCodeImageChanged = function (e: Event) {
+  const target = e.target as HTMLInputElement
+  if (target && target.files) {
+    qrCodeReadResultMsg.value = 'Scanning the image.'
+    console.log()
+    QrScanner.scanImage(target.files[0])
+      .then((result) => {
+        try {
+          const url = new URL(result)
+          const [, codeFromQR] = /^#\/code\/([A-Za-z0-9]*)$/.exec(url.hash) || []
+          if (codeFromQR && url.hostname === 'gap-moe.web.app') {
+            qrCodeReadResultMsg.value = ''
+            alert('Redirecting...')
+            router.push(`/code/${codeFromQR}`)
+          } else qrCodeReadResultMsg.value = 'Wrong QR code detected.'
+        } catch (err) {
+          console.error(err)
+          qrCodeReadResultMsg.value = 'Please, upload valid QR code.'
+        }
+      })
+      .catch((error) => {
+        console.error(error || 'No QR code found.')
+        qrCodeReadResultMsg.value = 'Failed to scan the QR code.'
+      })
+  } else qrCodeReadResultMsg.value = 'Please select the image.'
+}
 </script>
 
 <template>
   <div class="row justify-content-md-center" style="margin-top: 50px">
     <div class="col col-md-8 col-lg-5">
-      <label for="formFile" class="form-label text-center">Type sender ID manually</label>
-      <div class="input-group mb-3">
+      <label
+        class="form-label text-center"
+        data-bs-toggle="collapse"
+        data-bs-target="#typeSenderIDManually"
+        style="cursor: pointer"
+        >↓ Type sender ID manually</label
+      >
+      <div class="input-group mb-3 collapse" id="typeSenderIDManually">
         <button class="btn btn-outline-secondary" type="button" v-on:click="onSearchBtnClicked">
           Search
         </button>
@@ -48,7 +82,16 @@ const onSearchBtnClicked = function () {
       /> -->
       <div>
         <label for="formFile" class="form-label text-center">Read QR code</label>
-        <input class="form-control" type="file" id="formFile" accept="image/jpeg, image/png" />
+        <input
+          class="form-control"
+          type="file"
+          id="formFile"
+          accept="image/jpeg, image/png"
+          v-on:change="onQRCodeImageChanged"
+        />
+      </div>
+      <div>
+        <span>{{ qrCodeReadResultMsg }}</span>
       </div>
     </div>
   </div>
@@ -72,12 +115,18 @@ const onSearchBtnClicked = function () {
     </div>
     <div class="row justify-content-md-center" style="margin-top: 20px">
       <div class="col col-md-8 col-lg-5">
-        <label for="inputPassword" class="form-label" style="cursor: pointer">
+        <label
+          for="inputPassword"
+          class="form-label"
+          data-bs-toggle="collapse"
+          data-bs-target="#inputPassword"
+          style="cursor: pointer"
+        >
           ↓ Type password to decrypt (optional)</label
         >
         <input
           type="password"
-          class="form-control"
+          class="form-control collapse"
           id="inputPassword"
           maxlength="16"
           minlength="4"

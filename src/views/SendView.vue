@@ -2,6 +2,7 @@
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { ref, onMounted } from 'vue'
 import QRCode from 'qrcode'
+import { encryptContent } from '../components/core/encryptAndDecrypt'
 
 let userUid = ref('')
 let qrImgUrl = ref('')
@@ -27,61 +28,16 @@ onMounted(() => {
   })
 })
 
-async function decryptMessage(key: string, ciphertext: ArrayBuffer) {
-  const keyEncoded = new TextEncoder().encode(key)
-  const iv = new Uint8Array(16)
-  console.log('iv c', iv)
-  iv.set(keyEncoded)
-  console.log('iv', iv, iv.length)
-  const key_encoded = await window.crypto.subtle.importKey('raw', iv.buffer, 'AES-CTR', false, [
-    'encrypt',
-    'decrypt'
-  ])
-  // The iv value is the same as that used for encryption
-  return window.crypto.subtle.decrypt(
-    { name: 'AES-CTR', counter: iv, length: 128 },
-    key_encoded,
-    ciphertext
-  )
-}
-
-async function encryptMessage(key: string, plainText: string) {
-  const keyEncoded = new TextEncoder().encode(key)
-  const iv = new Uint8Array(16)
-  console.log('iv c', iv)
-  iv.set(keyEncoded)
-  console.log('iv', iv, iv.length)
-  const key_encoded = await window.crypto.subtle.importKey('raw', iv.buffer, 'AES-CTR', false, [
-    'encrypt',
-    'decrypt'
-  ])
-  const enc = new TextEncoder()
-  return window.crypto.subtle.encrypt(
-    {
-      name: 'AES-CTR',
-      counter: iv,
-      length: 128
-    },
-    key_encoded,
-    enc.encode(plainText)
-  )
-}
-
 const onSubmitClicked = async function () {
-  console.log(content.value.toString(), password.value.toString())
   if (password.value.length > 0) {
-    const encryptedBuffer = await encryptMessage(
+    const encryptedBuffer = await encryptContent(
       password.value.toString(),
       content.value.toString()
     )
-    console.log('e', encryptedBuffer)
-
-    const decrypted = await decryptMessage(password.value.toString(), encryptedBuffer)
-    console.log('d', decrypted)
-    const enc = new TextDecoder('utf-8')
-    console.log('t', enc.decode(decrypted))
+    console.log('e', encryptedBuffer as Uint8Array)
   } else {
-    console.log('plain')
+    const enc = new TextEncoder()
+    console.log('plain', enc.encode(content.value.toString()))
   }
 }
 </script>
