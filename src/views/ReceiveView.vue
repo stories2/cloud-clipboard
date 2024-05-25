@@ -157,8 +157,8 @@ const onQRCodeImageChanged = function (e: Event) {
             minlength="4"
             v-model="decryptKey"
           />
-          <div class="row justify-content-md-center" style="margin-top: 20px">
-            <div class="col col-md-8 col-lg-5">
+          <div class="row" style="margin-top: 20px">
+            <div class="col">
               <button type="submit" class="btn btn-outline-light">Decrypt</button>
             </div>
           </div>
