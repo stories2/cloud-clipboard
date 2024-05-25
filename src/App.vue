@@ -44,7 +44,12 @@ onMounted(() => {
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
           <RouterLink to="/send" class="nav-link">Send</RouterLink>
-          <RouterLink to="/code/undefined" class="nav-link">Receive</RouterLink>
+          <span v-if="userUid == ''">
+            <RouterLink to="/code/undefined" class="nav-link">Receive</RouterLink>
+          </span>
+          <span v-else>
+            <RouterLink :to="'/code/' + userUid" class="nav-link">Receive</RouterLink>
+          </span>
           <RouterLink to="/about" class="nav-link">About</RouterLink>
         </div>
       </div>
