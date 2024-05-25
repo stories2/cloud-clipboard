@@ -23,6 +23,12 @@ onMounted(() => {
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
+      <img
+        src="./assets/icon.png"
+        alt="icon"
+        height="32px"
+        style="margin-right: 5px; border-radius: 16px"
+      />
       <span class="navbar-brand">Clipboard via cloud</span>
       <button
         class="navbar-toggler"
