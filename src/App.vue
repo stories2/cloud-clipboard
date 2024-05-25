@@ -23,7 +23,7 @@ onMounted(() => {
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <span class="navbar-brand">Temparary</span>
+      <span class="navbar-brand">Clipboard via cloud</span>
       <button
         class="navbar-toggler"
         type="button"
