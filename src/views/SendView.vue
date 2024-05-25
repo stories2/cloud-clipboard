@@ -3,12 +3,15 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { ref, onMounted } from 'vue'
 import QRCode from 'qrcode'
 import { encryptContent } from '../components/core/encryptAndDecrypt'
+import { getApp } from 'firebase/app'
+import { doc, setDoc, getFirestore } from 'firebase/firestore'
 
 let userUid = ref('')
 let qrImgUrl = ref('')
 let qrError = ref('')
 let content = ref('')
 let password = ref('')
+let sendResult = ref('')
 
 onMounted(() => {
   onAuthStateChanged(getAuth(), (user) => {
@@ -29,15 +32,27 @@ onMounted(() => {
 })
 
 const onSubmitClicked = async function () {
+  sendResult.value = 'Sending...'
+  let contentToSend: string
   if (password.value.length > 0) {
     const encryptedBuffer = await encryptContent(
       password.value.toString(),
       content.value.toString()
     )
-    console.log('e', encryptedBuffer as Uint8Array)
-  } else {
-    const enc = new TextEncoder()
-    console.log('plain', enc.encode(content.value.toString()))
+    const decoder = new TextDecoder('utf8')
+    contentToSend = decoder.decode(encryptedBuffer)
+  } else contentToSend = content.value.toString()
+
+  const firestoreDB = getFirestore(getApp())
+  try {
+    await setDoc(doc(firestoreDB, 'user', userUid.value), {
+      content: contentToSend
+    })
+    alert('Sent!')
+    sendResult.value = ''
+  } catch (err) {
+    console.error(err)
+    sendResult.value = 'Failed to send content. Try it later'
   }
 }
 </script>
@@ -97,7 +112,14 @@ const onSubmitClicked = async function () {
     </div>
     <div class="row justify-content-md-center" style="margin-top: 20px">
       <div class="col col-md-8 col-lg-5">
-        <button type="submit" class="btn btn-outline-light">Send</button>
+        <button type="submit" class="btn btn-outline-light" :disabled="sendResult === 'Sending...'">
+          Send
+        </button>
+      </div>
+    </div>
+    <div class="row justify-content-md-center" style="margin-top: 20px">
+      <div class="col col-md-8 col-lg-5">
+        {{ sendResult }}
       </div>
     </div>
   </form>
