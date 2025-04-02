@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { getAuth, signInAnonymously, getAdditionalUserInfo } from 'firebase/auth'
+import { getAuth, signInAnonymously, getAdditionalUserInfo, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'firebase/auth'
 import { ref, onMounted } from 'vue'
 
 let userUid = ref('')
 let initError = ref('')
+let googleLoginBtnText = ref('Google login')
 
 onMounted(() => {
   const auth = getAuth()
@@ -17,7 +18,51 @@ onMounted(() => {
       console.error(error)
       initError.value = 'Failed to connect to the auth server.\nTry it later.'
     })
+
+    onAuthStateChanged(auth, (user) => {
+      googleLoginBtnText.value = 'Google login'
+      for(let providerData of user?.providerData || []) {
+        if (providerData.providerId === 'google.com') {
+          googleLoginBtnText.value = 'logout'
+        }
+      }
+    })
 })
+
+function loginAnonymously() {
+  const auth = getAuth()
+  signInAnonymously(auth)
+    .then((user) => {
+      // console.log('user', user.user.uid, getAdditionalUserInfo(user))
+      userUid.value = user.user.uid
+    })
+    .catch((error) => {
+      console.error(error)
+      initError.value = 'Failed to connect to the auth server.\nTry it later.'
+    })
+}
+
+function loginWithGoogle () {
+  const auth = getAuth();
+  const provider = new GoogleAuthProvider();
+signInWithPopup(auth, provider)
+  .then((result) => {
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    userUid.value = result.user.uid
+  }).catch((error) => {
+    // Handle Errors here.
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // The email of the user's account used.
+    const email = error.customData.email;
+    // The AuthCredential type that was used.
+    const credential = GoogleAuthProvider.credentialFromError(error);
+    // ...
+    alert(errorMessage)
+  });
+}
+
 </script>
 
 <template>
@@ -52,6 +97,14 @@ onMounted(() => {
           </span>
           <RouterLink to="/about" class="nav-link">About</RouterLink>
         </div>
+      </div>
+      <div class="d-flex">
+        <span v-if="googleLoginBtnText == 'Google login'">
+          <button class="btn btn-outline-success" @click="loginWithGoogle">{{ googleLoginBtnText }}</button>
+        </span>
+        <span v-else>
+          <button class="btn btn-outline-danger" @click="loginAnonymously">{{ googleLoginBtnText }}</button>
+        </span>
       </div>
     </div>
   </nav>
