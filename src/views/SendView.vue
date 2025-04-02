@@ -81,7 +81,7 @@ const onSubmitClicked = async function () {
             id="content"
             rows="4"
             style="height: 120px"
-            maxlength="500"
+            maxlength="50000"
             minlength="2"
             v-model="content"
           ></textarea>

@@ -165,7 +165,7 @@ const onQRCodeImageChanged = function (e: Event) {
             id="content"
             rows="4"
             style="height: 230px"
-            maxlength="500"
+            maxlength="50000"
             minlength="2"
             readonly
             disabled
