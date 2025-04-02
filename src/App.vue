@@ -74,7 +74,7 @@ signInWithPopup(auth, provider)
         height="32px"
         style="margin-right: 5px; border-radius: 16px"
       />
-      <span class="navbar-brand">Clipboard via cloud</span>
+      <span class="navbar-brand">{{ userUid }}</span>
       <button
         class="navbar-toggler"
         type="button"
@@ -98,7 +98,12 @@ signInWithPopup(auth, provider)
           <RouterLink to="/about" class="nav-link">About</RouterLink>
         </div>
       </div>
-      <div class="d-flex">
+      
+    </div>
+  </nav>
+  <div class="container">
+    <div class="row" style="margin-top: 50px">
+      <div class="col">
         <span v-if="googleLoginBtnText == 'Google login'">
           <button class="btn btn-outline-success" @click="loginWithGoogle">{{ googleLoginBtnText }}</button>
         </span>
@@ -106,9 +111,7 @@ signInWithPopup(auth, provider)
           <button class="btn btn-outline-danger" @click="loginAnonymously">{{ googleLoginBtnText }}</button>
         </span>
       </div>
-    </div>
-  </nav>
-  <div class="container">
+      </div>
     <div v-if="userUid != ''">
       <!-- {{ userUid }} -->
       <RouterView />

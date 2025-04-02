@@ -93,7 +93,7 @@ const onQRCodeImageChanged = function (e: Event) {
         style="cursor: pointer"
         >↓ Type sender ID manually</label
       >
-      <div class="input-group mb-3 collapse" id="typeSenderIDManually">
+      <div class="input-group mb-3 " id="typeSenderIDManually">
         <button class="btn btn-outline-secondary" type="button" v-on:click="onSearchBtnClicked">
           Search
         </button>
